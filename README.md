@@ -6,15 +6,18 @@ I coded it for pentesters and bug hunters. But it can also be useful for develop
 
 ### Installation
 
-    Clone the repository:
-    > git clone git@github.com:Sheryx00/GitTrash.git
+Clone the repository:
 
-    Install Dependencies 
+  > git clone git@github.com:Sheryx00/GitTrash.git
+
+Install Dependencies 
+
     > run pip install -r requirements.txt
 
 
 ### USAGE
-> python gittrash.py -r /path/to/repository -o output_folder
+
+`python gittrash.py -r /path/to/repository -o output_folder`
 
 
 ```
