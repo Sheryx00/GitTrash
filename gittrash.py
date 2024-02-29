@@ -1,5 +1,6 @@
-import git
 import os
+import git
+import fnmatch
 import argparse
 
 # Parse command-line arguments
@@ -24,9 +25,9 @@ def sanitize_grep_file(file_path):
                 sanitized_lines.append(line)
     return sanitized_lines
 
-def check_match(items, string):
-    for item in items:
-        if item in string.a_path:
+def check_match(patterns, string):
+    for pattern in patterns:
+        if fnmatch.fnmatch(str(string), pattern):
             return True
     return False
 
@@ -38,10 +39,11 @@ def process_commit(commit, patterns, output_folder):
         diff = parent.diff(commit)
         for file_d in diff:
             if check_match(patterns, file_d):
-                files_found_in_commit = True
                 print(f"{commit.hexsha} {file_d.a_path}")
+                files_found_in_commit = True
                 # Copy the file to the output folder
                 if file_d.a_path in parent.tree:
+                    print(f"{commit.hexsha} {file_d.a_path}")
                     os.makedirs(commit_folder, exist_ok=True)
                     with open(os.path.join(commit_folder, file_d.a_path.replace('/','_')), 'wb') as f:
                         blob = parent.tree[file_d.a_path]
