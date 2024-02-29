@@ -17,7 +17,7 @@ I coded it for pentesters and bug hunters. But it can also be useful for develop
 
 ### USAGE
 
-> `python gittrash.py -r /path/to/repository -o output_folder`
+`python gittrash.py -r /path/to/repository -o output_folder`
 
 
 ```
