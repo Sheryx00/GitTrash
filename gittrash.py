@@ -2,6 +2,7 @@ import os
 import git
 import re
 import argparse
+import hashlib
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="Search for files in a Git repository and copy them to an output folder.")
@@ -14,6 +15,7 @@ args = parser.parse_args()
 repository_path = args.repository
 file_path = args.file or os.path.join(repository_path, ".gitignore")
 output_folder = args.output
+copied_files = {}  # Keep track of copied files and their hashes
 
 def sanitize_grep_file(file_path):
     """Sanitize the grep file by removing empty lines and lines starting with #."""
@@ -39,6 +41,12 @@ def check_match(patterns, string):
             return True
     return False
 
+def get_sha256(data):
+    """Calculate the SHA-256 hash of data."""
+    sha256 = hashlib.sha256()
+    sha256.update(data)
+    return sha256.hexdigest()
+
 def process_commit(commit, patterns, output_folder):
     """Process a single commit to check for file matches and copy them to the output folder."""
     commit_folder = os.path.join(output_folder, commit.hexsha[:8])
@@ -47,23 +55,21 @@ def process_commit(commit, patterns, output_folder):
         diff = parent.diff(commit)
         for file_d in diff:
             if check_match(patterns, file_d.a_path):
-                print(f"{commit.hexsha} {file_d.a_path}")
                 files_found_in_commit = True
-                # Copy the file to the output folder
+                # Copy the file to the output folder if it hasn't been copied before
                 if file_d.deleted_file:
-                    os.makedirs(commit_folder, exist_ok=True)
-                    copied = False
-                    # Find the file in the parent commit
-                    for ancestor_file in parent.tree.traverse():
-                        if ancestor_file.path == file_d.a_path:
-                            with open(os.path.join(commit_folder, file_d.a_path.replace('/', '_')), 'wb') as f:
-                                f.write(ancestor_file.data_stream.read())
-                            copied = True
-                            break
-                    if not copied:
-                        print(f"Failed to find {file_d.a_path} in parent commits.")
+                    if file_d.a_path not in copied_files or copied_files[file_d.a_path] != get_sha256(file_d.a_blob.data_stream.read()):
+                        os.makedirs(commit_folder, exist_ok=True)
+                        file_path = os.path.join(commit_folder, file_d.a_path.replace('/', '_'))
+                        print(f"{commit.hexsha} {file_d.a_path}")
+                        copied_files[file_d.a_path] = get_sha256(file_d.a_blob.data_stream.read())
+                        # Find the file in the parent commit
+                        for ancestor_file in parent.tree.traverse():
+                            if ancestor_file.path == file_d.a_path:
+                                with open(file_path, 'wb') as f:
+                                    f.write(ancestor_file.data_stream.read())
+                                break
     return files_found_in_commit
-
 
 def process_line(repo_path, patterns, output_folder):
     """Process a single line to check for file matches in all commits."""
