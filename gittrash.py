@@ -58,17 +58,21 @@ def process_commit(commit, patterns, output_folder):
                 files_found_in_commit = True
                 # Copy the file to the output folder if it hasn't been copied before
                 if file_d.deleted_file:
-                    if file_d.a_path not in copied_files or copied_files[file_d.a_path] != get_sha256(file_d.a_blob.data_stream.read()):
+                    if file_d.a_path not in copied_files:
+                        print(f"{commit.hexsha[:8]}/{file_d.a_path.replace('/', '_')}")
                         os.makedirs(commit_folder, exist_ok=True)
                         file_path = os.path.join(commit_folder, file_d.a_path.replace('/', '_'))
-                        print(f"{commit.hexsha} {file_d.a_path}")
-                        copied_files[file_d.a_path] = get_sha256(file_d.a_blob.data_stream.read())
+                        copied_files[file_d.a_path] = [get_sha256(file_d.a_blob.data_stream.read())]
                         # Find the file in the parent commit
                         for ancestor_file in parent.tree.traverse():
                             if ancestor_file.path == file_d.a_path:
                                 with open(file_path, 'wb') as f:
                                     f.write(ancestor_file.data_stream.read())
                                 break
+                    else:
+                        sha256 = get_sha256(file_d.a_blob.data_stream.read())
+                        if sha256 not in copied_files[file_d.a_path]:
+                            copied_files[file_d.a_path].append(sha256)
     return files_found_in_commit
 
 def process_line(repo_path, patterns, output_folder):
