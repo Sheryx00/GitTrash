@@ -4,6 +4,10 @@ import re
 import argparse
 import hashlib
 
+# Colors
+BLUE = "\33[94m"
+END = "\033[0m"
+
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="Search for files in a Git repository and copy them to an output folder.")
 parser.add_argument("-r", "--repository", required=True, help="Path to the Git repository")
@@ -83,9 +87,22 @@ def process_line(repo_path, patterns, output_folder):
         if process_commit(commit, patterns, output_folder):
             found_files = True
     if not found_files:
-        print(f"No files found.")
+        print(f"{BLUE}No files found.{END}")
+    else:
+        print(f"{BLUE}Done.{END}")
+
+def banner():
+    banner = f"""
+    {BLUE}\n
+ __    ___          
+/ _ .|_ | _ _  _|_  
+\__)||_ || (_|_)| )\n{END}
+    {BLUE}Created by{END}: @Sheryx00
+    {BLUE}Github{END}: https://github.com/Sheryx00/GitTrash\n"""
+    return banner
 
 if __name__ == "__main__":
+    print(banner())
     repo = git.Repo(repository_path)
     os.makedirs(output_folder, exist_ok=True)
     gitignore_patterns = sanitize_grep_file(file_path)
