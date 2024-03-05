@@ -55,7 +55,7 @@ def process_commit(commit, patterns, output_folder):
     """Process a single commit to check for file matches and copy them to the output folder."""
     commit_folder = os.path.join(output_folder, commit.hexsha[:8])
     files_found_in_commit = False
-    for parent in commit.iter_parents():
+    for parent in commit.parents:
         diff = parent.diff(commit)
         for file_d in diff:
             if check_match(patterns, file_d.a_path):
@@ -80,7 +80,6 @@ def process_commit(commit, patterns, output_folder):
     return files_found_in_commit
 
 def process_line(repo_path, patterns, output_folder):
-    """Process a single line to check for file matches in all commits."""
     repo = git.Repo(repo_path)
     found_files = False
     for commit in repo.iter_commits('--all'):
