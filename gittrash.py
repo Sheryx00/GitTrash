@@ -14,7 +14,7 @@ parser.add_argument("-r", "--repository", required=True, help="Path to the Git r
 parser.add_argument("-f", "--file", help="File containing patterns to search for (default: .gitignore in the repository folder)")
 parser.add_argument("-o", "--output", default="extracted", help="Output folder to copy matched files to (default: extracted)")
 parser.add_argument("-a", "--all", action="store_true", default=False, help="Restore all deleted files. Ignore --file")
-parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Restore all deleted files. Ignore --file")
+parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Verbose mode (default: off)")
 args = parser.parse_args()
 
 # Set the repository path, filename, output folder, and number of threads
@@ -27,10 +27,14 @@ copied_files = {}  # Keep track of copied files and their hashes
 def sanitize_grep_file(file_path):
     """Sanitize the grep file by removing empty lines and lines starting with #."""
     sanitized_lines = []
+    if not os.path.exists(file_path):
+        print(f"{BLUE}No .gitignore file found. Proceeding with no patterns.{END}")
+        return sanitized_lines  # Return an empty list if the file doesn't exist
+
     with open(file_path, "r") as file:
         for line in file:
             line = line.strip()
-            if line and not line.startswith(("#","!")):
+            if line and not line.startswith(("#", "!")):
                 sanitized_lines.append(line)
     return sanitized_lines
 

@@ -4,6 +4,8 @@ GitTrash will allow you to search for files that have been deleted in the reposi
 
 I coded it for pentesters and bug hunters. But it can also be useful for developers.
 
+If you want to know more about it, check this [medium post](https://medium.com/@sheryx00/gittrash-digging-deep-into-git-repositories-for-hidden-treasures-dfa6b3ff9251)
+
 ### Installation
 
 1.Clone the repository:
@@ -22,7 +24,8 @@ I coded it for pentesters and bug hunters. But it can also be useful for develop
 
 ```
 python3 gittrash.py -h
-usage: gittrash.py [-h] -r REPOSITORY [-f FILE] [-o OUTPUT]
+
+usage: gittrash.py [-h] -r REPOSITORY [-f FILE] [-o OUTPUT] [-a] [-v]
 
 Search for files in a Git repository and copy them to an output folder.
 
@@ -30,9 +33,10 @@ options:
   -h, --help            show this help message and exit
   -r REPOSITORY, --repository REPOSITORY
                         Path to the Git repository
-  -f FILE, --file FILE  File containing patterns to search for (default:
-                        .gitignore in the repository folder)
+  -f FILE, --file FILE  File containing patterns to search for (default: .gitignore in the repository
+                        folder)
   -o OUTPUT, --output OUTPUT
-                        Output folder to copy matched files to (default:
-                        extracted)
+                        Output folder to copy matched files to (default: extracted)
+  -a, --all             Restore all deleted files. Ignore --file
+  -v, --verbose         Verbose mode (default: off)
 ```
